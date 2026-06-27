@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import { SiteHeader } from "@/components/site/site-header";
 import { HeroContent } from "@/components/site/hero-content";
 import { DitherImage } from "@/components/site/dither-image";
+import { AgentLogos } from "@/components/site/agent-logos";
 ---
 
 <Layout>
@@ -34,8 +35,21 @@ import { DitherImage } from "@/components/site/dither-image";
 		</section>
 
 		<!-- Header overlays the full width of the split -->
-		<div class="absolute inset-x-0 top-0 z-[60]">
+		<div class="fixed inset-x-0 top-0 z-[60]">
 			<SiteHeader client:load />
 		</div>
 	</div>
+
+	<!-- Agent logo carousel below the hero -->
+	<section class="border-t border-border bg-background pt-10 pb-16 lg:pt-12 lg:pb-20">
+		<div class="mx-auto mb-12 max-w-2xl px-6 text-center lg:mb-14">
+			<h2 class="text-h2 text-balance text-foreground">
+				Bring your own agents
+			</h2>
+			<p class="text-lead text-pretty mt-4 text-muted-foreground">
+				Run Claude Code, Codex, OpenCode, Cursor, or your own — on credentials you already pay for. No token resale, no lock-in.
+			</p>
+		</div>
+		<AgentLogos client:visible />
+	</section>
 </Layout>

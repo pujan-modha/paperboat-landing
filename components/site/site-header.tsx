@@ -1,6 +1,8 @@
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+
+import { cn } from "@/lib/utils";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Login01Icon,
@@ -143,9 +145,11 @@ function MobileSection({
 function MobileNav({
   open,
   onOpenChange,
+  scrolled,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  scrolled: boolean;
 }) {
   return (
     <>
@@ -161,7 +165,10 @@ function MobileNav({
             <button
               type="button"
               aria-label={open ? "Close menu" : "Open menu"}
-              className="-ml-1 flex size-9 items-center justify-center text-white lg:hidden"
+              className={cn(
+                "-ml-1 flex size-9 items-center justify-center lg:hidden",
+                scrolled && !open ? "text-primary" : "text-white"
+              )}
             />
           }
         >
@@ -198,13 +205,33 @@ function MobileNav({
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // When scrolled, the header gains a translucent white background, so all
+  // overlay text switches to the dark primary color for legibility.
+  const navText =
+    scrolled && !menuOpen ? "text-primary" : "text-white lg:text-primary";
 
   return (
-    <header className="flex w-full items-center justify-between gap-6 px-6 py-4 lg:px-10 lg:py-5">
+    <header
+      className={cn(
+        "flex w-full items-center justify-between gap-6 px-6 py-4 transition-colors duration-300 lg:px-10 lg:py-5",
+        scrolled &&
+          !menuOpen &&
+          "border-b border-border bg-background shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-background"
+      )}
+    >
       <div className="flex items-center gap-3 lg:gap-8">
-        <MobileNav open={menuOpen} onOpenChange={setMenuOpen} />
+        <MobileNav open={menuOpen} onOpenChange={setMenuOpen} scrolled={scrolled} />
 
-        <a href="/" className="flex items-center gap-2.5 text-white lg:text-primary">
+        <a href="/" className={cn("flex items-center gap-2.5", navText)}>
           <PaperboatMark className="size-7" />
           <span className="font-mono text-base font-bold tracking-tight">
             PAPERBOAT
@@ -214,7 +241,7 @@ export function SiteHeader() {
         <NavigationMenu className="hidden lg:flex">
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger className="text-nav font-medium text-white lg:text-primary">
+              <NavigationMenuTrigger className={cn("text-nav font-medium", navText)}>
                 Products
               </NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -231,14 +258,14 @@ export function SiteHeader() {
             <NavigationMenuItem>
               <NavigationMenuLink
                 render={<a href="#docs" />}
-                className="text-nav font-medium text-white lg:text-primary"
+                className={cn("text-nav font-medium", navText)}
               >
                 Docs
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <NavigationMenuTrigger className="text-nav font-medium text-white lg:text-primary">
+              <NavigationMenuTrigger className={cn("text-nav font-medium", navText)}>
                 Pricing
               </NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -255,7 +282,7 @@ export function SiteHeader() {
             <NavigationMenuItem>
               <NavigationMenuLink
                 render={<a href="#changelog" />}
-                className="text-nav font-medium text-white lg:text-primary"
+                className={cn("text-nav font-medium", navText)}
               >
                 Changelog
               </NavigationMenuLink>
@@ -269,7 +296,11 @@ export function SiteHeader() {
           size="lg"
           nativeButton={false}
           render={<a href="#signin" />}
-          className="bg-primary-foreground/15 text-primary-foreground hover:bg-primary-foreground/25 lg:bg-primary-foreground lg:text-primary lg:hover:bg-primary-foreground/90"
+          className={cn(
+            scrolled
+              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+              : "bg-primary-foreground/15 text-primary-foreground hover:bg-primary-foreground/25 lg:bg-primary-foreground lg:text-primary lg:hover:bg-primary-foreground/90"
+          )}
         >
           Sign in
           <HugeiconsIcon icon={Login01Icon} data-icon="inline-end" />
